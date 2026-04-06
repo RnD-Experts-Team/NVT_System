@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Audit – Schedule & Attendance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg:#F4F3EF;--surface:#FFFFFF;--surface2:#F0EFE9;--border:#E2E0D8;--border2:#D0CEC4;
+    --text:#1A1916;--text2:#6B6860;--text3:#9C9A92;
+    --purple:#5B4FD4;--purple-light:#ECEAFC;--purple-text:#3B30A8;
+    --teal:#0F7E64;--teal-light:#E0F5EE;--teal-text:#0A5444;
+    --amber:#B06A10;--amber-light:#FEF0DA;--amber-text:#7A4A0A;
+    --coral:#C44A2A;--coral-light:#FCEAE4;--coral-text:#8A3018;
+    --gray-light:#EDEDEA;--gray-text:#4A4A46;
+    --blue:#1A6FB5;--blue-light:#E1EFFC;--blue-text:#0C447C;
+    --radius:10px;--radius-lg:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+  .app{display:flex;min-height:100vh;}
+  .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+  .sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+  .logo-mark{width:32px;height:32px;background:var(--purple);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .logo-mark svg{width:16px;height:16px;fill:white;}
+  .logo-name{font-size:13px;font-weight:600;line-height:1.2;}
+  .logo-sub{font-size:11px;color:var(--text3);}
+  .sidebar-nav{padding:12px 10px;flex:1;}
+  .nav-section-label{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3);padding:14px 10px 6px;text-transform:uppercase;}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);margin-bottom:2px;transition:all .15s;}
+  .nav-item:hover{background:var(--surface2);color:var(--text);}
+  .nav-item.active{background:var(--purple-light);color:var(--purple-text);font-weight:500;}
+  .nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7;}
+  .nav-item.active .nav-icon{opacity:1;}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .user-pill{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--surface2);}
+  .user-avatar{width:28px;height:28px;border-radius:50%;background:var(--purple-light);color:var(--purple-text);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+  .user-name{font-size:12px;font-weight:500;}
+  .user-role{font-size:10px;color:var(--text3);}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .topbar-left{display:flex;align-items:center;gap:16px;}
+  .topbar-title{font-size:15px;font-weight:600;}
+  .topbar-right{display:flex;align-items:center;gap:10px;}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-family:"DM Sans",sans-serif;cursor:pointer;font-weight:500;transition:all .15s;border:1px solid transparent;}
+  .btn-primary{background:var(--purple);color:white;border-color:var(--purple);}
+  .btn-primary:hover{background:var(--purple-text);}
+  .btn-ghost{background:transparent;color:var(--text2);border-color:var(--border2);}
+  .btn-ghost:hover{background:var(--surface2);color:var(--text);}
+  .btn-teal{background:var(--teal);color:white;border-color:var(--teal);}
+  .btn-teal:hover{background:var(--teal-text);}
+  .btn svg{width:14px;height:14px;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .content{flex:1;overflow-y:auto;padding:24px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  .grid-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:12px;}
+  .grid-controls-left{display:flex;align-items:center;gap:10px;}
+  .grid-controls-right{display:flex;align-items:center;gap:8px;}
+  .week-nav{display:flex;align-items:center;gap:10px;}
+  .week-nav-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:16px;transition:all .15s;}
+  .week-nav-btn:hover{background:var(--surface2);color:var(--text);}
+  .week-label{font-size:15px;font-weight:600;min-width:220px;text-align:center;}
+  .filter-select{font-family:"DM Sans",sans-serif;font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface);color:var(--text);cursor:pointer;outline:none;}
+  .filter-select:focus{border-color:var(--purple);}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .stat-card .stat-n{font-size:26px;font-weight:600;line-height:1;margin-bottom:4px;}
+  .stat-card .stat-l{font-size:11px;color:var(--text2);}
+  .stat-card.s-teal .stat-n{color:var(--teal);}
+  .stat-card.s-amber .stat-n{color:var(--amber);}
+  .stat-card.s-coral .stat-n{color:var(--coral);}
+  .stat-card.s-gray .stat-n{color:var(--text3);}
+  .grid-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+  .sched-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:auto;position:relative;}
+  .sched-table tbody td.gantt-cell{overflow:visible;}
+  .sched-table{width:100%;border-collapse:collapse;min-width:860px;}
+  .sched-table thead th{background:var(--surface2);border-bottom:1px solid var(--border);padding:10px 8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;text-align:center;white-space:nowrap;}
+  .sched-table tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+  .sched-table tbody tr:last-child{border-bottom:none;}
+  .sched-table tbody tr:hover{background:#FAFAF7;}
+  .sched-table tbody td{padding:8px 7px;vertical-align:middle;border-right:1px solid var(--border);text-align:center;}
+  .sched-table tbody td:last-child{border-right:none;}
+  .sched-table td.today-col{background:#ECEAFC;color:var(--purple-text);}
+  .shift-cell{display:flex;flex-direction:column;align-items:flex-start;gap:4px;border-radius:8px;padding:8px;min-height:68px;position:relative;font-size:12px;background:#fff;border:1px solid var(--border2);color:var(--text);}
+  .shift-cell.off{background:var(--gray-light);border-color:var(--border);color:var(--text3);}
+  .shift-cell .status-chip{font-size:11px;font-weight:600;padding:2px 6px;border-radius:6px;}
+  .shift-cell.on-time{background:rgba(224,248,240,.9);border-color:#BCEADC;}
+  .shift-cell.late{background:rgba(255,241,211,.9);border-color:#F5D6A1;}
+  .shift-cell.absent{background:rgba(254,226,231,.9);border-color:#F0B5BF;}
+  .shift-cell.early{background:rgba(254,235,232,.9);border-color:#F5B9B2;}
+  /* ── True Gantt bar: absolute overlay spanning two day columns ── */
+  .gantt-bar-overlay{
+    position:absolute;border-radius:8px;display:flex;align-items:center;
+    padding:0 14px;cursor:pointer;z-index:10;
+    box-shadow:0 2px 10px rgba(0,0,0,.13);transition:box-shadow .15s,transform .15s;
+    overflow:hidden;
+  }
+  .gantt-bar-overlay:hover{box-shadow:0 4px 16px rgba(0,0,0,.2);transform:scaleY(1.04);z-index:20;}
+  .gantt-bar-overlay.on-time{
+    background:linear-gradient(90deg,rgba(224,248,240,.97),rgba(188,234,220,.97));
+    border:1.5px solid #0F7E64;color:#0A5444;
+  }
+  .gantt-bar-overlay.late{
+    background:linear-gradient(90deg,rgba(255,241,211,.97),rgba(245,214,161,.97));
+    border:1.5px solid #B06A10;color:#7A4A0A;
+  }
+  .gantt-bar-overlay.early{
+    background:linear-gradient(90deg,rgba(254,235,232,.97),rgba(245,185,178,.97));
+    border:1.5px solid #C44A2A;color:#8A3018;
+  }
+  .gantt-bar-overlay.absent{
+    background:linear-gradient(90deg,rgba(254,226,231,.97),rgba(240,181,191,.97));
+    border:1.5px solid #C44A2A;color:#8A3018;
+  }
+  .gantt-bar-overlay.off{
+    background:var(--gray-light);border:1.5px solid var(--border);color:var(--text3);
+  }
+  .gantt-bar-label{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .gantt-bar-shift{font-size:12px;font-weight:700;white-space:nowrap;}
+  .gantt-bar-time{font-size:10px;font-weight:500;opacity:.85;white-space:nowrap;}
+  .gantt-bar-status{font-size:10px;font-weight:600;white-space:nowrap;}
+  .detail-btn{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;}
+  .violations-badge{color:#C44A2A;font-weight:700;}
+  .rule-link{color:var(--purple-text);font-weight:600;cursor:pointer;text-decoration:underline;}
+  .updated-tag{position:absolute;top:4px;right:4px;background:var(--purple-light); color:var(--purple-text);font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;}
+  .muted{opacity:.24;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(26,25,22,.45);display:none;align-items:center;justify-content:center;z-index:600;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-card{background:var(--surface);border-radius:var(--radius-lg);max-width:680px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.18);max-height:90vh;overflow:auto;}
+  .modal-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .modal-title{font-size:16px;font-weight:600;}
+  .modal-body{padding:16px 18px;}
+  .info-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+  .info-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;}
+  .label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+  .text{font-size:13px;color:var(--text);}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--purple-light);color:var(--purple-text);display:flex;align-items:center;justify-content:center;font-weight:600;}
+  .form-row{margin-bottom:12px;}
+  .form-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;display:block;}
+  .form-input,.form-select{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface);font-family:"DM Sans",sans-serif;font-size:13px;color:var(--text);outline:none;}
+  .form-input:focus,.form-select:focus{border-color:var(--purple);}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A1916;color:white;padding:11px 20px;border-radius:10px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"><svg viewBox="0 0 16 16"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h8v2H2z"/></svg></div>
+      <div class="logo-name">Schedule System</div>
+      <div class="logo-sub">Audit Portal</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">AUDIT</div>
+      <div class="nav-item active" onclick="showScreen('audit-grid')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="14" height="14" rx="2"/><path d="M1 5h14M5 1v14M9 5v10"/></svg>
+        Audit – Schedule & Attendance
+      </div>
+      <div class="nav-item" onclick="showScreen('shifts')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        Shifts
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">AU</div>
+        <div><div class="user-name">Alex Auditor</div><div class="user-role">Compliance</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbar-title">Audit – Schedule & Attendance</div>
+      </div>
+      <div class="topbar-right">
+        <select id="audit-department" class="filter-select" onchange="buildAuditGrid();">
+          <option value="all">All departments</option>
+          <option>Dispatch Teams</option>
+          <option>Customer Support</option>
+        </select>
+        <div class="week-nav">
+          <button class="week-nav-btn" onclick="changeWeek(-1)">&#8592;</button>
+          <div class="week-label" id="week-label"></div>
+          <button class="week-nav-btn" onclick="changeWeek(1)">&#8594;</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="screen active" id="screen-audit-grid">
+        <div class="grid-controls">
+          <div class="grid-controls-left" style="width:100%;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+            <input id="filter-search" class="filter-select" style="width:240px;" placeholder="Search employee..." oninput="buildAuditGrid()">
+            <select id="filter-status" class="filter-select" style="width:200px;" onchange="buildAuditGrid()">
+              <option value="all">All</option>
+              <option value="on-time">On time</option>
+              <option value="late">Late</option>
+              <option value="absent">Absent</option>
+              <option value="left-early">Left early</option>
+            </select>
+            <select id="audit-department" class="filter-select" onchange="buildAuditGrid()" style="width:220px;">
+              <option value="all">All departments</option>
+              <option>Dispatch Teams</option>
+              <option>Customer Support</option>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="grid-summary" id="summary-cards"></div>
+
+        <div class="sched-table-wrap">
+          <table class="sched-table" id="audit-grid-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th id="day-mon">Mon</th><th id="day-tue">Tue</th><th id="day-wed">Wed</th><th id="day-thu">Thu</th><th id="day-fri">Fri</th><th id="day-sat">Sat</th><th id="day-sun">Sun</th>
+              </tr>
+            </thead>
+            <tbody id="audit-grid-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-shifts">
+        <div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+          <div class="stat-card s-teal" style="flex:none;"><div class="stat-n" id="shifts-count">0</div><div class="stat-l">Total Shifts</div></div>
+          <button class="btn btn-teal" onclick="openShiftModal()">+ Add Shift</button>
+        </div>
+        <div class="sched-table-wrap">
+          <table class="sched-table" id="shifts-table" style="min-width:400px;">
+            <thead>
+              <tr>
+                <th style="text-align:left;">Shift Name</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shifts-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="audit-detail-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Details</div>
+      <button class="btn btn-ghost" onclick="closeAuditModal()">Close</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="shift-modal">
+  <div class="modal-card" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title" id="shift-modal-title">Add Shift</div>
+      <button class="btn btn-ghost" onclick="closeShiftModal()">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><label class="form-label">Shift Name</label><input id="shift-name" class="form-input" type="text" placeholder="e.g. Shift A, Night, Morning" /></div>
+      <div class="form-row"><label class="form-label">From</label><input id="shift-from" class="form-input" type="time" value="09:00" /></div>
+      <div class="form-row"><label class="form-label">To</label><input id="shift-to" class="form-input" type="time" value="17:00" /></div>
+      <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:10px;"><button class="btn btn-ghost" onclick="closeShiftModal()">Cancel</button><button class="btn btn-primary" onclick="saveShift()">Save</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">Delete Shift</div>
+      <button class="btn btn-ghost" onclick="closeConfirmModal()">Close</button>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete this shift?</p>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;"><button class="btn btn-ghost" onclick="closeConfirmModal()">Cancel</button><button class="btn btn-primary" onclick="confirmDelete()">Delete</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const todayIndex = new Date().getDay()===0 ? 6 : new Date().getDay()-1;
+const weekBase = new Date();
+const WEEK_START = new Date(weekBase.setDate(weekBase.getDate() - todayIndex));
+let currentWeek = new Date(WEEK_START);
+
+// TODO: Replace with real API data
+const EMPLOYEES=[
+  {id:'#0001',name:'Ahmed Hassan',level:'L2',department:'Dispatch Teams'},
+  {id:'#0002',name:'Sara Rashid',level:'L1',department:'Dispatch Teams'},
+  {id:'#0003',name:'Omar Saleh',level:'L2',department:'Customer Support'},
+  {id:'#0004',name:'Layla Ibrahim',level:'L1',department:'Customer Support'},
+  {id:'#0005',name:'Rania Fouad',level:'L2',department:'Dispatch Teams'},
+  {id:'#0006',name:'Khalid Mansour',level:'L2',department:'Customer Support'}
+];
+
+const SCHEDULE_GRID=[
+  {empId:'#0001',days:{
+    Mon:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:true,cover:'Covering Shift A for #0005'},
+    Tue:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:false},
+    Wed:{shift:'Shift C',planned_in:'14:00',planned_out:'22:00',updated:false},
+    Thu:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:false},
+    Fri:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:false},
+    Sat:{shift:'Day Off'},
+    Sun:{shift:'Day Off'}
+  }},
+  {empId:'#0002',days:{
+    Mon:{shift:'Shift A',planned_in:'06:00',planned_out:'14:00',updated:false},
+    Tue:{shift:'Shift A',planned_in:'06:00',planned_out:'14:00',updated:true},
+    Wed:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:false},
+    Thu:{shift:'Day Off'},
+    Fri:{shift:'Shift B',planned_in:'09:00',planned_out:'17:00',updated:false},
+    Sat:{shift:'Day Off'},
+    Sun:{shift:'Day Off'}
+  }},
+  {empId:'#0003',days:{
+    Mon:{shift:'Shift C',planned_in:'14:00',planned_out:'22:00',updated:false},
+    Tue:{shift:'Shift C',planned_in:'14:00',planned_out:'22:00',updated:false},
+    Wed:{shift:'Shift D',planned_in:'22:00',planned_out:'06:00',updated:false},
+    Thu:{shift:'Shift D',planned_in:'22:00',planned_out:'06:00',updated:false},
+    Fri:{shift:'Shift C',planned_in:'14:00',planned_out:'22:00',updated:true},
+    Sat:{shift:'Day Off'},
+    Sun:{shift:'Day Off'}
+  }},
+  {empId:'#0006',days:{
+    Mon:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Tue:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Wed:{shift:'Day Off'},
+    Thu:{shift:'Day Off'},
+    Fri:{shift:'Day Off'},
+    Sat:{shift:'Day Off'},
+    Sun:{shift:'Day Off'}
+  }},
+  {empId:'#0004',days:{
+    Mon:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Tue:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Wed:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Thu:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Fri:{shift:'Shift E',planned_in:'20:30',planned_out:'08:30',updated:false},
+    Sat:{shift:'Day Off'},
+    Sun:{shift:'Day Off'}
+  }}
+];
+
+const FINGERPRINT_LOGS=[
+  {empId:'#0001',day:'Mon',in:'09:02',out:'17:05'},
+  {empId:'#0001',day:'Tue',in:'09:00',out:'17:01'},
+  {empId:'#0001',day:'Wed',in:'14:05',out:'21:40'},
+  {empId:'#0001',day:'Thu',in:'09:04',out:'16:45'},
+  {empId:'#0001',day:'Fri',in:'09:07',out:'17:10'},
+  {empId:'#0002',day:'Mon',in:'05:55',out:'14:05'},
+  {empId:'#0002',day:'Tue',in:'06:06',out:'14:00'},
+  {empId:'#0002',day:'Wed',in:null,out:null},
+  {empId:'#0003',day:'Mon',in:'14:02',out:'22:00'},
+  {empId:'#0003',day:'Tue',in:'13:58',out:'21:30'},
+  {empId:'#0003',day:'Wed',in:'22:15',out:'05:50'},
+  {empId:'#0006',day:'Mon',in:'20:30',out:'08:30'},
+  {empId:'#0006',day:'Tue',in:'20:30',out:'08:30'},
+  {empId:'#0004',day:'Mon',in:'20:30',out:'08:35'},
+  {empId:'#0004',day:'Tue',in:'20:38',out:'08:30'},
+  {empId:'#0004',day:'Wed',in:'20:30',out:'07:45'},
+  {empId:'#0004',day:'Thu',in:'20:32',out:'08:30'}
+];
+
+const SHIFTS = [
+  {name:'Shift A', from:'06:00', to:'14:00'},
+  {name:'Shift B', from:'09:00', to:'17:00'},
+  {name:'Shift C', from:'14:00', to:'22:00'},
+  {name:'Shift D', from:'22:00', to:'06:00'},
+  {name:'Shift E', from:'20:30', to:'08:30'}
+];
+
+
+function parseTime(value){
+  if(!value) return null;
+  if(/^\d{4}$/.test(value)){
+    const h = Number(value.slice(0,2));
+    const m = Number(value.slice(2,4));
+    return h*60+m;
+  }
+  const [h,m]=value.split(':').map(Number);
+  return h*60+m;
+}
+function formatTime(value){return value||'—';}
+function isOvernightShift(planned){
+  if(!planned || !planned.planned_in || !planned.planned_out) return false;
+  const start = parseTime(planned.planned_in);
+  const end = parseTime(planned.planned_out);
+  if(start===null || end===null) return false;
+  return end < start;
+}
+function calculateStatus(planned, actual){
+  if(!planned || planned.shift==='Day Off') return {status:'Off',note:'No schedule',class:'off'};
+  if(!actual || !actual.in) return {status:'Absent',note:'No fingerprint',class:'absent'};
+  const pIn = parseTime(planned.planned_in);
+  let pOut = parseTime(planned.planned_out);
+  if(pIn !== null && pOut !== null && pOut <= pIn){
+    pOut += 24 * 60;
+  }
+  const aIn = parseTime(actual.in);
+  let aOut = actual.out ? parseTime(actual.out) : null;
+  if(aIn !== null && aOut !== null && aOut <= aIn){
+    aOut += 24 * 60;
+  }
+  const late = aIn > pIn + 5;
+  const left = aOut !== null && aOut < pOut - 15;
+  if(left && late) return {status:'Left early',note:`Late ${aIn-pIn}m, left ${pOut-aOut}m early`,class:'early'};
+  if(left) return {status:'Left early',note:`Left ${pOut-aOut}m early`,class:'early'};
+  if(late) return {status:'Late',note:`Late ${aIn-pIn}m`,class:'late'};
+  return {status:'On time',note:'On time',class:'on-time'};
+}
+function getFingerprint(empId,day){ return FINGERPRINT_LOGS.find(r=>r.empId===empId&&r.day===day) || null; }
+
+function getWeekLabel(weekStart){
+  const end = new Date(weekStart); end.setDate(end.getDate()+6);
+  const fmt = d => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return `${fmt(weekStart)} – ${fmt(end)}, ${weekStart.getFullYear()}`;
+}
+function changeWeek(delta){
+  currentWeek.setDate(currentWeek.getDate()+delta*7);
+  document.getElementById('week-label').textContent = getWeekLabel(currentWeek);
+  buildAuditGrid();
+}
+
+function filterMatch(status){
+  const sel = document.getElementById('filter-status').value;
+  if(sel==='all') return true;
+  const map = {
+    'On time':'on-time',
+    'Late':'late',
+    'Absent':'absent',
+    'Left early':'left-early',
+    'Off':'off'
+  };
+  return map[status]===sel;
+}
+function buildSummary(records){
+  const onTime = records.filter(r=>r.status==='On time').length;
+  const late = records.filter(r=>r.status==='Late').length;
+  const absent = records.filter(r=>r.status==='Absent').length;
+  const early = records.filter(r=>r.status==='Left early').length;
+  document.getElementById('summary-cards').innerHTML = `
+    <div class="stat-card s-teal"><div class="stat-n">${onTime}</div><div class="stat-l">On time</div></div>
+    <div class="stat-card s-amber"><div class="stat-n">${late}</div><div class="stat-l">Late arrivals</div></div>
+    <div class="stat-card s-coral"><div class="stat-n">${absent}</div><div class="stat-l">Absent / No fingerprint</div></div>
+    <div class="stat-card s-gray"><div class="stat-n">${early}</div><div class="stat-l">Left early</div></div>`;
+}
+
+function renderShiftsTable(){
+  document.getElementById('shifts-count').textContent = SHIFTS.length;
+  const tbody = document.getElementById('shifts-table-body');
+  tbody.innerHTML = SHIFTS.map((s, i) => {
+    const fromMin = parseTime(s.from);
+    let toMin = parseTime(s.to);
+    if(toMin <= fromMin) toMin += 24 * 60;
+    const dur = toMin - fromMin;
+    const durText = `${Math.floor(dur/60)}h${dur%60>0 ? ' '+dur%60+'m' : ''}`;
+    const overnight = parseTime(s.to) < parseTime(s.from);
+    return `<tr>
+      <td style="text-align:left;padding:8px 12px;font-weight:600;">${s.name}${overnight ? ' <span style="font-size:10px;font-weight:400;color:var(--text3);">🌙 overnight</span>' : ''}</td>
+      <td>${s.from}</td>
+      <td>${s.to}</td>
+      <td>${durText}</td>
+      <td>
+        <button class="btn btn-ghost" onclick="editShift(${i})">Edit</button>
+        <button class="btn btn-ghost" onclick="askDelete(${i})">Delete</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+let editingShiftIndex = null;
+
+function openShiftModal(){
+  editingShiftIndex = null;
+  document.getElementById('shift-modal-title').textContent = 'Add Shift';
+  document.getElementById('shift-name').value = '';
+  document.getElementById('shift-from').value = '09:00';
+  document.getElementById('shift-to').value = '17:00';
+  document.getElementById('shift-modal').classList.add('open');
+}
+
+function closeShiftModal(){
+  document.getElementById('shift-modal').classList.remove('open');
+}
+
+function saveShift(){
+  const name = document.getElementById('shift-name').value.trim();
+  if(!name){ showToast('Shift name is required'); return; }
+  const from = document.getElementById('shift-from').value;
+  const to = document.getElementById('shift-to').value;
+  if(!from || !to){ showToast('Start and end times are required'); return; }
+  if(editingShiftIndex === null){
+    SHIFTS.push({name, from, to});
+    showToast('Shift added.');
+  } else {
+    SHIFTS[editingShiftIndex] = {name, from, to};
+    showToast('Shift updated.');
+  }
+  closeShiftModal();
+  renderShiftsTable();
+}
+
+function editShift(index){
+  const shift = SHIFTS[index];
+  editingShiftIndex = index;
+  document.getElementById('shift-modal-title').textContent = 'Edit Shift';
+  document.getElementById('shift-name').value = shift.name;
+  document.getElementById('shift-from').value = shift.from;
+  document.getElementById('shift-to').value = shift.to;
+  document.getElementById('shift-modal').classList.add('open');
+}
+
+let deletingRuleIndex = null;
+function askDelete(index){
+  deletingRuleIndex = index;
+  document.getElementById('confirm-modal').classList.add('open');
+}
+
+function closeConfirmModal(){
+  deletingRuleIndex = null;
+  document.getElementById('confirm-modal').classList.remove('open');
+}
+
+function confirmDelete(){
+  if(deletingRuleIndex !== null){
+    SHIFTS.splice(deletingRuleIndex, 1);
+    showToast('Shift deleted.');
+    renderShiftsTable();
+  }
+  closeConfirmModal();
+}
+
+function buildAuditGrid(){
+  const dept = document.getElementById('audit-department').value;
+  const q = document.getElementById('filter-search').value.toLowerCase();
+  const statusFilter = document.getElementById('filter-status').value;
+  const rows = EMPLOYEES.filter(emp=>{
+    if(dept!=='all' && emp.department!==dept) return false;
+    return emp.name.toLowerCase().includes(q);
+  });
+
+  const statuses=[]
+  const body = rows.map((emp,ei)=>{
+    const schedule = SCHEDULE_GRID.find(r=>r.empId===emp.id) || {days:{}};
+    // Pre-scan: determine which column indices are overnight-shift starts and ends
+    const overnightStartDi  = new Set();
+    const overnightEndDi    = new Set();
+    const overnightPlanByDi = {};
+    DAYS.forEach((d, i) => {
+      const p = schedule.days[d] || {shift:'Day Off'};
+      if(isOvernightShift(p)){
+        overnightStartDi.add(i);
+        overnightPlanByDi[i] = p;
+        if(i < DAYS.length - 1) overnightEndDi.add(i + 1);
+      }
+    });
+
+    const cells = DAYS.map((day,di)=>{
+      const isGanttStart = overnightStartDi.has(di);
+      const isGanttEnd   = overnightEndDi.has(di);
+
+      if(isGanttStart){
+        const planned = overnightPlanByDi[di];
+        const actual  = getFingerprint(emp.id, day);
+        const result  = calculateStatus(planned, actual);
+        if(result.status!=='Off') statuses.push(result.status);
+        // Invisible placeholder — renderGanttBars() will draw the absolute bar on top
+        // data-is-bridge marks cells that are simultaneously a chain-end AND a chain-start
+        const isBridge = isGanttEnd;
+        const bL = isBridge ? 'border-left:none;' : '';
+        const bridgeAttr = isBridge ? ' data-is-bridge="true"' : '';
+        return `<td class="gantt-cell" data-gantt-start="${ei}-${di}" data-emp-i="${ei}" data-day-i="${di}"${bridgeAttr} style="padding:0;${bL}border-right:none;"><div style="height:84px;"></div></td>`;
+      }
+      if(isGanttEnd){
+        // End-only column: invisible placeholder, bar from start cell covers it
+        return `<td class="gantt-cell" style="padding:0;border-left:none;"><div style="height:84px;"></div></td>`;
+      }
+
+      const planned = schedule.days[day] || {shift:'Day Off'};
+      const actual = getFingerprint(emp.id,day);
+      const result = calculateStatus(planned,actual);
+
+      if(!filterMatch(result.status)) {
+        return `<td class="muted"><div class="shift-cell off">Filtered</div></td>`;
+      }
+      if(result.status!=='Off'){
+        statuses.push(result.status);
+      }
+      const updatedBadge = planned.updated ? `<div class="updated-tag">Updated</div>` : '';
+      const actualText = actual && actual.in ? `In ${actual.in} – Out ${actual.out||'—'}` : 'No fingerprint';
+      const plannedText = planned.shift==='Day Off' ? 'Off' : `${planned.shift} · ${planned.planned_in}–${planned.planned_out}`;
+      return `<td onclick="openAuditDetail(${ei}, ${di})">
+        <div class="shift-cell ${result.class}">${updatedBadge}
+          <div><strong style="font-size:12px;">${plannedText}</strong></div>
+          <div style="font-size:11px;color:var(--text2);">${actualText}</div>
+          ${result.status!=='Off'?`<div class="status-chip">${result.status}</div>`:''}
+        </div>
+      </td>`;
+    }).join('');
+
+    return `<tr>
+      <td style="text-align:left;padding:8px 10px;">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="avatar">${emp.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+          <div style="text-align:left;"><strong>${emp.name}</strong><br><small>${emp.department}</small></div>
+        </div>
+      </td>${cells}</tr>`;
+  }).join('');
+  document.getElementById('audit-grid-body').innerHTML=body;
+  buildSummary(statuses);
+  requestAnimationFrame(renderGanttBars);
+}
+
+function renderGanttBars(){
+  const wrapper = document.querySelector('.sched-table-wrap');
+  if(!wrapper) return;
+  wrapper.querySelectorAll('.gantt-bar-overlay').forEach(b => b.remove());
+
+  // Walk offsetParent chain to get position relative to wrapper (not viewport).
+  // This is immune to any scroll on any ancestor — bars are always in wrapper-content coords.
+  function relOffset(el){
+    let top = 0, left = 0;
+    while(el && el !== wrapper){
+      top  += el.offsetTop;
+      left += el.offsetLeft;
+      el = el.offsetParent;
+    }
+    return {top, left};
+  }
+
+  document.querySelectorAll('[data-gantt-start]').forEach(startCell => {
+    const ei = parseInt(startCell.getAttribute('data-emp-i'));
+    const di = parseInt(startCell.getAttribute('data-day-i'));
+    const endCell = startCell.nextElementSibling;
+    if(!endCell) return;
+
+    const filteredRows = EMPLOYEES.filter(emp => {
+      const dept = document.getElementById('audit-department').value;
+      if(dept !== 'all' && emp.department !== dept) return false;
+      const q = document.getElementById('filter-search').value.toLowerCase();
+      return emp.name.toLowerCase().includes(q);
+    });
+    const emp = filteredRows[ei];
+    if(!emp) return;
+
+    const schedule = SCHEDULE_GRID.find(r => r.empId === emp.id) || {days:{}};
+    const day = DAYS[di];
+    const planned = schedule.days[day];
+    if(!planned) return;
+    const actual = getFingerprint(emp.id, day);
+    const result = calculateStatus(planned, actual);
+
+    const startOff = relOffset(startCell);
+    const endOff   = relOffset(endCell);
+    const cellH    = startCell.offsetHeight;
+    const startW   = startCell.offsetWidth;
+    const endW     = endCell.offsetWidth;
+
+    const isChainStart = !startCell.hasAttribute('data-is-bridge');
+    const isChainEnd   = !endCell.hasAttribute('data-gantt-start');
+
+    const INSET_H = 4;
+    const INSET_V = 6;
+    const startMid = startOff.left + startW / 2;
+    const endMid   = endOff.left   + endW   / 2;
+    const left   = Math.round(isChainStart ? startOff.left + INSET_H : startMid);
+    const right  = Math.round(isChainEnd   ? endOff.left + endW - INSET_H : endMid);
+    const top    = Math.round(startOff.top + INSET_V);
+    const width  = Math.max(right - left, 40);
+    const height = Math.max(cellH - INSET_V * 2, 48);
+
+    const bar = document.createElement('div');
+    bar.className = `gantt-bar-overlay ${result.class}`;
+    bar.style.cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;`;
+    bar.onclick = () => openAuditDetail(ei, di);
+
+    const inDisplay  = actual && actual.in  ? actual.in  : planned.planned_in;
+    const outDisplay = actual && actual.out ? actual.out : planned.planned_out;
+    const statusNote = result.note && result.note !== result.status ? result.note : result.status;
+    const updIcon = planned.updated ? ' ✎' : '';
+
+    bar.innerHTML = `
+      <div class="gantt-bar-label">
+        <span class="gantt-bar-shift">${planned.shift}${updIcon} <span style="font-size:10px;font-weight:500;opacity:.6">🌙+1</span></span>
+        <span class="gantt-bar-time">${inDisplay} → ${outDisplay}</span>
+        ${result.status !== 'Off' ? `<span class="gantt-bar-status">${statusNote}</span>` : ''}
+      </div>`;
+    wrapper.appendChild(bar);
+  });
+}
+
+function attachCellHandlers(){
+  const tds = document.querySelectorAll('#audit-grid-body td');
+  tds.forEach((td, idx)=> {
+    const row = Math.floor(idx/7), col = idx%7;
+    td.onclick = () => openAuditDetail(row, col);
+  });
+}
+
+function openAuditDetail(empIndex, dayIndex){
+  const rows = EMPLOYEES.filter(emp=>{
+    const dept = document.getElementById('audit-department').value;
+    if(dept!=='all' && emp.department!==dept) return false;
+    const q = document.getElementById('filter-search').value.toLowerCase();
+    return emp.name.toLowerCase().includes(q);
+  });
+  const emp = rows[empIndex];
+  if(!emp) return;
+  const day = DAYS[dayIndex];
+  const schedule = SCHEDULE_GRID.find(r=>r.empId===emp.id)?.days[day] || {shift:'Day Off'};
+  const actual = getFingerprint(emp.id,day);
+  const result = calculateStatus(schedule,actual);
+  let totalHours = '—';
+  if(actual && actual.in && actual.out){
+    const inMin = parseTime(actual.in);
+    let outMin = parseTime(actual.out);
+    if(inMin !== null && outMin !== null){
+      if(outMin <= inMin) outMin += 24 * 60;
+      const worked = outMin - inMin;
+      totalHours = `${Math.floor(worked/60)}h ${worked%60}m`;
+    }
+  }
+  document.getElementById('modal-title').textContent=`${emp.name} — ${day}`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="info-row">
+      <div class="info-card"><div class="label">Employee</div><div class="text">${emp.name} (${emp.level})</div></div>
+      <div class="info-card"><div class="label">Department</div><div class="text">${emp.department}</div></div>
+      <div class="info-card"><div class="label">Date</div><div class="text">${day}</div></div>
+    </div>
+    <div class="info-row">
+      <div class="info-card"><div class="label">Planned</div><div class="text">${schedule.shift}</div><div class="text">${schedule.planned_in||'—'} – ${schedule.planned_out||'—'}</div><div class="text">Cover: ${schedule.cover||'None'}</div></div>
+      <div class="info-card"><div class="label">Actual</div><div class="text">${actual && actual.in ? `In ${actual.in}` : 'No fingerprint'}</div><div class="text">${actual && actual.out ? `Out ${actual.out}` : ''}</div><div class="text">Total ${totalHours}</div></div>
+    </div>
+    <div class="audit-highlight"><strong>Status:</strong> ${result.status} ${result.note?`(${result.note})`:''}</div>
+    <div class="info-card"><div class="label">Change history</div>
+      <div class="text">Mar 24 2026 · adjusted by manager · Shift A → Shift B</div>
+      <div class="text">Mar 25 2026 · approved by manager</div>
+    </div>`;
+  document.getElementById('audit-detail-modal').classList.add('open');
+}
+
+function closeAuditModal(){ document.getElementById('audit-detail-modal').classList.remove('open'); }
+
+function showToast(message){
+  let t = document.getElementById('toast');
+  if(!t){ t = document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
+  t.textContent = message;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function showScreen(screen){ 
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const screenMap = { 'audit-grid':'screen-audit-grid', 'shifts':'screen-shifts' };
+  const targetScreen = screenMap[screen] || screen;
+  const target = document.getElementById(targetScreen);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.textContent.trim().startsWith('Audit') && (screen==='audit-grid' || screen==='screen-audit-grid')) n.classList.add('active');
+    if(n.textContent.trim().startsWith('Shifts') && (screen==='shifts' || screen==='screen-shifts')) n.classList.add('active');
+  });
+  if(screen==='audit-grid' || screen==='screen-audit-grid'){
+    document.getElementById('topbar-title').textContent='Audit – Schedule & Attendance';
+    buildAuditGrid();
+  } else if(screen==='shifts' || screen==='screen-shifts'){
+    document.getElementById('topbar-title').textContent='Shifts';
+    renderShiftsTable();
+  }
+}
+
+function init(){
+  document.getElementById('week-label').textContent = getWeekLabel(currentWeek);
+  showScreen('audit-grid');
+  window.addEventListener('resize', () => renderGanttBars());
+  const tw = document.querySelector('.sched-table-wrap');
+  tw.addEventListener('scroll', () => renderGanttBars());
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+Requirements Confirmation
+Module 2 — Audit & Compliance System
+Version 2.0 — Updated Client Review and Approval
+
+Project name	Employee Schedule Management System
+Document type	Requirements Confirmation — for client review
+Module	Module 2 — Audit & Compliance System
+Version	2.0 — Updated Client Review
+Date	March 26, 2026
+Prepared by	Development Team
+Access	Compliance Team (read-only for Managers)
+
+1. Module Purpose
+The Audit & Compliance System (Module 2) provides the Compliance team with complete visibility into schedule adherence across all departments. The module combines a live attendance audit grid with a shift rules management interface, enabling auditors to detect violations, investigate attendance patterns, and enforce company scheduling policies. Managers have read-only access to audit data, while Compliance team members can fully manage shift rules.
+2. Module Screens
+Screen 1 — Audit Schedule Grid
+The primary view displays a weekly grid with employees as rows and days of the week as columns. Each cell shows the employee's attendance status for that day, color-coded for instant recognition. Auditors can navigate between weeks, filter by department or rule, and click any cell to open a detailed attendance modal showing planned versus actual times.
+Screen 2 — Shifts Management
+The Shifts tab lists all defined company shift types with their name, start time, end time, and auto-calculated duration. Overnight shifts (those crossing midnight) are automatically flagged with a 🌙 label. Compliance administrators can add new shifts, edit existing ones, or delete them with a confirmation step.
+
+3. Feature List (17 Features)
+
+#	Feature	Description	Location
+1	Weekly Audit Grid	Employees (rows) × Days (columns) with color-coded status indicators for instant recognition	Audit Tab
+2	Fingerprint vs Planned	Compare actual clock-in/out times against scheduled shifts; cells show both planned and actual times side by side	Audit Tab
+3	Status Colors & Logic	Green = On-time, Orange = Late, Red = Absent, Purple = Left Early. Combined case detected: employee marked Late + Left Early simultaneously with exact minutes shown	Audit Tab
+4	Status Filter	Dropdown to filter the grid to a specific status: All / On-time / Late / Absent / Left Early. Non-matching rows appear faded	Audit Tab
+5	Department Filter	Filter grid by Dispatch Teams or Customer Support department	Audit Tab
+6	Search Employees	Live search by employee name, updates grid instantly	Audit Tab
+7	Click Cell Detail	Modal shows: employee info, planned shift & times, actual fingerprint in/out, total hours worked, status, cover assignment, and full change history	Audit Tab
+8	Updated Badge on Cells	Cells with recently changed shifts display a small "Updated" tag in the top-right corner	Audit Tab
+9	Overnight Shift Gantt Bar	Shifts crossing midnight (e.g. 20:30 → 08:30) render as a visual bar spanning two day columns, color-coded by status, with a 🌙 overnight label and hover effect	Audit Tab
+10	Live Summary Cards	Real-time count cards: On-time / Late / Absent / Left Early — updates instantly when filters change	Audit Tab
+11	Week Navigation	Left/right arrow buttons to navigate between weeks	Audit Tab
+12	Today Highlight	Current day column highlighted in purple across the entire grid	Audit Tab
+13	Shifts Table	View all defined company shifts with columns: Shift Name, From, To, Duration (auto-calculated including overnight spans)	Shifts Tab
+14	Overnight Badge	Shifts crossing midnight automatically display a 🌙 overnight label next to the shift name in the table	Shifts Tab
+15	Add Shift	Plus (+) button opens a form to create a new shift with Name, From time, and To time fields	Shifts Tab
+16	Edit Shift	Edit button per row opens the form pre-filled to modify an existing shift	Shifts Tab
+17	Delete Shift	Delete button per row with a confirmation dialog before removing the shift	Shifts Tab
+
+4. Attendance Status Color Reference
+The audit grid uses four color codes to communicate attendance status at a glance:
+•	🟢 Green — On Time — Employee clocked in and out within the scheduled shift window.
+•	🟠 Orange — Late Arrival — Employee clocked in after the scheduled start time (grace period: 5 minutes).
+•	🔴 Red — Absent — No clock-in recorded; employee did not attend the scheduled shift.
+•	🟣 Purple — Left Early — Employee clocked out before the scheduled end time (threshold: 15 minutes early).
+•	🟣🟠 Combined — Late + Left Early — Employee was both late to arrive AND left before end time. Note shows exact minutes for each: e.g. "Late 6m, left 30m early".
+
+5. Sample Shifts Data
+
+Shift Name	From	To	Duration	Notes
+Shift A	06:00	14:00	8h	Standard daytime shift
+Shift B	09:00	17:00	8h	Standard daytime shift
+Shift C	14:00	22:00	8h	Standard daytime shift
+Shift D  🌙 overnight	22:00	06:00	8h	Crosses midnight — Gantt bar spans 2 columns
+Shift E  🌙 overnight	20:30	08:30	12h	Crosses midnight — Gantt bar spans 2 columns
+
+6. Access & Permissions
+•	Compliance Team: Full access — view audit grid, manage shifts, filter by status and department
+•	Managers: Read-only — view audit grid and summary cards only; no shift editing
+•	HR / Admin: Read-only — view reports and download audit summaries
+
+7. Client Approval
+By signing below, the client confirms that the features and screens described in this document accurately represent the agreed requirements for Module 3 — Audit & Compliance System (Version 2.0), and authorizes the development team to proceed with implementation.
+Role	Name & Signature	Date
+Client Representative	___________________________	____________
+Project Manager	___________________________	____________
+Lead Developer	___________________________	____________
+
+Employee Schedule Management System  •  Module 2: Audit & Compliance  •  v2.0  •  March 2026
+
+
+
+
+
+
+
+
+
+
+
+Requirements Confirmation
+Module 1 - Manager Schedule System
+Version 2.0 - Complete Feature Set - Draft for client review and approval
+
+Project name	Employee Schedule Management System
+Document type	Requirements Confirmation - for client review
+Module	Module 1 of 2 - Manager Schedule
+Prepared by	Development Team
+Date	25 March 2026
+Version	2.0 - Complete Feature Set
+
+1.  Purpose of This Document
+This document confirms our understanding of what the client has requested for the Manager Schedule module. It is written in plain language so the client can read it, verify that every requirement is correctly understood, and approve it before development begins.
+
+This is version 2.0 and includes 8 additional features agreed upon after the first review, bringing the total to 23 features. If anything is incorrect or missing, the client should mark it and return it to the development team.
+
+2.  Module Overview
+The Manager Schedule System allows managers (Level 2 and above) to build and manage the weekly work schedule for all employees in their department. The manager sees a grid with employees in rows and the days of the week across the top, and fills in each shift by clicking a cell.
+
+The system supports the following key workflows:
+
+•	Building a weekly schedule by assigning one of 6 fixed company-wide shifts to each employee
+•	Copying the previous week's schedule as a starting point to save time
+•	Assigning shifts in bulk to multiple employees or multiple days at once
+•	Marking shifts as cover shifts and recording which employee is being covered
+•	Adding optional comments to any shift assignment for context or notes
+•	Viewing the full change history for any shift: who changed it, when, and why
+•	Publishing the schedule when complete so audit can see it
+•	Automated weekly email reminders to ensure schedules are always created on time
+•	Exporting the weekly schedule as a CSV file for offline use or reporting
+
+The system is available as a web application used by managers and HR administrators on desktop or laptop computers.
+
+3.  The Three Screens - In Plain Language
+The manager workflow is made up of three screens. Each is explained below in plain language so the client can confirm our understanding is correct.
+
+Screen 1 - The Weekly Schedule Grid
+This is the main screen the manager works from. It shows the entire week as a table. Every employee in the department is listed in the first column. The days of the week - Monday through Sunday - are shown across the top row.
+
+Each cell represents one employee on one day. The manager clicks a cell to assign or change a shift. Filled cells show the shift name, hours, and a color. Empty cells appear as a dashed box with a + sign, indicating no shift has been assigned yet.
+
+Our understanding:
+
+•	Weekly grid: employees listed as rows, Monday through Sunday as columns
+•	Today's column is highlighted in purple so the manager can see the current day immediately
+•	Color-coded cells: green = working, orange = Day off, red = sick day, purple = leave request, dashed = not yet assigned
+•	Cover shift cells display the covered employee directly on the cell, e.g. COVERING Omar's Shift B
+•	Summary bar at the top shows counts of working, day off, modified, and days off for the week
+•	Color legend at the bottom of the grid explains what each color means
+•	Arrow buttons allow navigation forward and backward by week
+•	"Copy Last Week" button duplicates last week's full schedule into the current week, with a confirmation step before copying
+•	"Publish Schedule" button makes the schedule visible to audit when it is ready
+•	"Export as CSV" button downloads the current week's schedule as a spreadsheet file
+
+Screen 2 - Assign or Edit a Shift
+When the manager clicks any cell in the grid, a form opens. This form is used both for assigning a new shift to an empty cell and for editing a shift that already exists. The employee name and selected day are shown at the top of the form.
+
+Our understanding:
+
+•	The form shows the employee name, their level and tier, and the selected day
+•	6 shift cards are displayed for the manager to choose from (shift names and times to be confirmed by client - see Section 4)
+•	Three off type options are available alongside the 6 shift cards in the same picker: Day off (orange), Sick Day (red), and Leave Request (purple). No hours are shown for any off type.
+•	A "Cover" checkbox is available on the form. When checked, two dropdowns appear:
+•	        - "This will cover..." - which shift slot is being covered
+•	        - "From whom" - which employee is being covered for that slot
+•	An optional free-text comment box is at the bottom of the form
+•	For existing shifts, the full change history is shown below the form: every past change, who made it, when, and any comment left
+•	Save and Cancel buttons are shown clearly at the bottom of the form
+
+Screen 3 - Day Detail View
+When the manager clicks a day column header in the grid, a full detail view opens for that specific day, showing every employee in the department and their schedule status for that day.
+
+Our understanding:
+
+•	Full table of all employees for the selected day
+•	Each row shows: employee name, shift name, hours, status badge, and cover details if applicable
+•	Summary bar at the top shows counts of working, Day off, sick day, and leave request for that day
+•	Search by employee name using a search box
+•	Filter the list by status: Working, Day off or Modified
+•	Edit button on each row opens the assign/edit form for that employee directly
+
+4.  Shifts and Off Types
+The system uses 6 fixed working shifts that apply across all departments. In addition, the manager can mark an employee with one of 3 specific off types instead of a generic day off. The shift names and hours must be confirmed by the client before development begins.
+
+Shift Name	Hours (24-hour format)	Notes
+Shift A	To be confirmed by client	Working shift - exact hours to be confirmed by client
+Shift B	To be confirmed by client	Working shift - exact hours to be confirmed by client
+Shift C	To be confirmed by client	Working shift - exact hours to be confirmed by client
+Shift D	To be confirmed by client	Working shift - exact hours to be confirmed by client
+Shift E	To be confirmed by client	Working shift - exact hours to be confirmed by client
+Shift F	To be confirmed by client	Working shift - exact hours to be confirmed by client
+
+Important: Once the client confirms the 6 shift names and exact working hours, this table will be updated and the document re-issued for final sign-off.
+
+The 3 Off Types
+When an employee is not working, the manager selects one of three specific off types. Each has its own color so the manager can see at a glance why someone is absent.
+
+Off Type	Hours shown	When to use
+Day off	None	Normal rotation day off - part of the standard weekly schedule.
+Sick Day	None	Manager marks the employee as sick on a working day.
+Leave Request	None	Approved vacation or personal leave request.
+
+All three off types show no working hours. The difference is only in the reason and the color shown on the grid.
+
+5.  Bulk Assignment - How It Works
+The bulk assignment feature lets a manager assign shifts to many cells at once instead of clicking each cell individually. This is especially useful at the start of a new week when many employees share the same shift.
+
+There are two bulk modes:
+
+•	By employees (rows) - The manager ticks the checkbox next to multiple employee names, picks one shift, and that shift is applied to all selected employees for the selected day.
+•	By days (columns) - The manager ticks the checkbox on multiple day headers, picks one shift, and that shift is applied to the selected employee for all chosen days.
+
+When bulk mode is active, a blue information box appears on screen to guide the manager through the steps. This makes the feature easy to understand even for managers using it for the first time.
+
+6.  Automated Email Reminders
+To ensure the weekly schedule is always created on time, the system includes an automated daily check that runs at 12:00 PM every day. This works in the background without any action needed from the manager.
+
+How the automated reminders work
+The system checks every day at 12:00 PM (noon). Here is what happens:
+Monday  -->  The system sends a friendly reminder email to the manager: "Please create this week's schedule."
+Tuesday  -->  If the schedule is still not created, the system sends a second reminder email AND automatically copies last week's schedule into the current week.
+Wednesday onward  -->  The copied schedule is already in place. No more emails are sent. The manager can still edit any shift at any time.
+
+This automation ensures that employees are never left without a published schedule. Even if the manager forgets, a schedule is always in place by Tuesday at the latest.
+
+7.  Full Feature List - All 23 Features
+The table below lists every feature included in this module. Features marked "Auto" run automatically in the background and require no action from the manager.
+
+#	Feature	What it does	Platform
+1	Weekly schedule grid	View all employees in the department as rows, with Monday through Sunday across the top. Each cell shows the assigned shift or an empty dashed slot ready to be filled.	Web
+2	Click cell - assign shift	Click any empty cell to open the assign shift form for that employee and that day.	Web
+3	Click cell - edit shift	Click any filled cell to open the edit form, which shows the current shift and the full change history at the bottom.	Web
+4	Shift picker (6 shifts)	Manager selects one of 6 fixed company-wide shifts from a card-style picker. Each card shows the shift name and hours and is color-coded green for working shifts.	Web
+5	Off type picker (3 types)	Instead of a single Day off option, the manager picks from three specific off types: Day off (orange - normal rotation day off), Sick Day (red - employee called in sick), or Leave Request (purple - approved vacation or personal leave). No hours are shown for any off type.	Web
+6	Cover checkbox	Optional checkbox on the assign/edit form. When checked, two dropdowns appear: "This will cover..." (which shift is being covered) and "From whom" (which employee is being covered).	Web
+7	Cover tag on grid cell	Cells that are cover shifts display the covered employee directly on the cell, for example: COVERING Omar's Shift B. Visible on the grid at a glance without opening the form.	Web
+8	Comment field	Optional free-text comment the manager can add when assigning or editing a shift. Saved permanently with the change record and visible in the history.	Web
+9	Change history	Every change to a shift is logged and shown at the bottom of the edit form: who changed it, when, and what comment was left. This log cannot be edited or deleted.	Web
+10	Copy last week	A button that copies all shift assignments from the previous week into the current week. A confirmation dialog is shown before copying to prevent accidents.	Web
+11	Publish schedule	When the manager finishes building the week, they click Publish to make the schedule visible to employees and trigger notifications.	Web
+12	Week navigation	Manager can move forward and backward by week using arrow buttons. The current week date range is always shown clearly at the top of the grid.	Web
+13	Today highlight	Today's column is highlighted in purple on the grid so the manager can immediately see the current day without searching.	Web
+14	Day detail view	Click any day column header to open a full list of all employees for that day, with shift name, hours, status badge, and cover details. Includes search by name and filter by status.	Web
+15	Status filter on grid	Filter the grid to show only a specific status: Working, Day off, Sick Day, Leave Request, or Modified. Each off type can be filtered independently.	Web
+16	Bulk assignment	Two bulk modes let the manager assign shifts to many cells at once: select multiple employees (rows) or multiple days (columns), then apply one shift to all selected cells in one action.	Web
+17	Multi-select checkboxes	In bulk mode, checkboxes appear on each employee row or day column header. The manager ticks the ones they want and applies one shift to all of them at once.	Web
+18	Apply shift to all selected	After selecting multiple employees or multiple days, the manager picks one shift and it is applied to all selected cells at once. Saves significant time when many people share the same shift.	Web
+19	Mode hints	When bulk mode is active, a blue information box appears on screen explaining what the manager is doing and how to complete the action. Helps managers who are new to the bulk feature.	Web
+20	Visual color legend	A color guide at the bottom of the grid explains all 5 statuses: green = working, orange = Day off, red = sick day, purple = leave request, dashed = not yet assigned.	Web
+21	Automated email reminder - Monday	Every Monday at 12:00 PM, the system automatically sends a friendly reminder email to the manager: "Please create this week's schedule."	Auto
+22	Automated email + auto-copy - Tuesday	Every Tuesday at 12:00 PM, if the schedule has not been created, the system sends a second reminder email AND automatically copies last week's schedule into the current week so employees are not left without a schedule.	Auto
+23	Export schedule as CSV	A button on the grid lets the manager download the current week's schedule as a CSV file listing every employee, their shift name, and hours for each day of the week.	Web
+
+8.  Client Approval
+Please review all sections of this document. If everything is correct and matches what you requested, please sign below to confirm approval. Development will begin after your signature is received.
+
+If any point needs to be changed, please mark it and return the document to the development team. We will update it and send a revised version before any work starts.
+
+Client name:	Signature and date:
+	
+
+- End of Document -
+
+
+
+
+
+
+
