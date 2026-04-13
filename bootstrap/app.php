@@ -12,10 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->api(prepend: [
+            \Illuminate\Http\Middleware\HandleCors::class,
+        ]);
+
         $middleware->alias([
-            'is_admin'   => \App\Http\Middleware\EnsureIsAdmin::class,
-            'is_manager' => \App\Http\Middleware\EnsureIsManager::class,
-            'compliance' => \App\Http\Middleware\EnsureIsCompliance::class,
+            'permission'          => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role'                => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'role_or_permission'  => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'dept.scope'          => \App\Http\Middleware\EnforceDepartmentScope::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

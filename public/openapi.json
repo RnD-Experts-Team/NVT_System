@@ -1,0 +1,2290 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Attendance & Schedule API",
+    "version": "1.0.0",
+    "description": "OpenAPI specification for the Attendance & Schedule management API."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api",
+      "description": "Laravel artisan serve (php artisan serve)"
+    },
+    {
+      "url": "http://localhost/projacet/NVT_system/public/api",
+      "description": "XAMPP Apache (when Apache is running)"
+    }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "Departments", "description": "Department management endpoints" },
+    { "name": "Users", "description": "User management endpoints" },
+    { "name": "Levels", "description": "User level (read-only) endpoints" },
+    { "name": "Roles", "description": "Role management endpoints" },
+    { "name": "Permissions", "description": "Permission management endpoints" },
+    { "name": "Shifts", "description": "Shift management endpoints" },
+    { "name": "Schedule", "description": "Weekly schedule management endpoints" },
+    { "name": "Fingerprint", "description": "Fingerprint import endpoints" },
+    { "name": "Audit", "description": "Attendance audit endpoints" }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login",
+        "operationId": "login",
+        "requestBody": { "$ref": "#/components/requestBodies/LoginRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuthSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Logout",
+        "operationId": "logout",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/LogoutSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get authenticated user",
+        "operationId": "me",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/MeSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/departments": {
+      "get": {
+        "tags": ["Departments"],
+        "summary": "List departments",
+        "operationId": "listDepartments",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DepartmentListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/departments/create": {
+      "post": {
+        "tags": ["Departments"],
+        "summary": "Create department",
+        "operationId": "createDepartment",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/StoreDepartmentRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/DepartmentCreatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/departments/tree": {
+      "get": {
+        "tags": ["Departments"],
+        "summary": "Get department tree",
+        "operationId": "getDepartmentTree",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DepartmentTreeSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/departments/{department}": {
+      "get": {
+        "tags": ["Departments"],
+        "summary": "Get department by ID",
+        "operationId": "getDepartment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/DepartmentIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DepartmentSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/departments/{department}/update": {
+      "put": {
+        "tags": ["Departments"],
+        "summary": "Update department",
+        "operationId": "updateDepartment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/DepartmentIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/UpdateDepartmentRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/DepartmentUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/departments/{department}/delete": {
+      "delete": {
+        "tags": ["Departments"],
+        "summary": "Delete department",
+        "operationId": "deleteDepartment",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/DepartmentIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DeletedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List users",
+        "operationId": "listUsers",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/PerPageQuery" },
+          { "$ref": "#/components/parameters/PageQuery" },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by department ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 2
+          },
+          {
+            "name": "user_level_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user level ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 1
+          },
+          {
+            "name": "user_level_tier_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by user level tier ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 1
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "description": "Filter by role name",
+            "schema": { "type": "string" },
+            "example": "manager"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Search by name or email",
+            "schema": { "type": "string" },
+            "example": "John"
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/UserListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/users/create": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create user",
+        "operationId": "createUser",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/StoreUserRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/UserCreatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/users/{user}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user by ID",
+        "operationId": "getUser",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/UserIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/UserSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/users/{user}/update": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update user",
+        "operationId": "updateUser",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/UserIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/UpdateUserRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/UserUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/users/{user}/delete": {
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete user",
+        "operationId": "deleteUser",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/UserIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DeletedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/users/{user}/roles": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Assign roles to user",
+        "operationId": "assignUserRoles",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/UserIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/AssignRolesRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/UserUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/levels": {
+      "get": {
+        "tags": ["Levels"],
+        "summary": "List user levels with tiers",
+        "operationId": "listLevels",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/LevelListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "tags": ["Roles"],
+        "summary": "List roles",
+        "operationId": "listRoles",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/RoleListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/roles/create": {
+      "post": {
+        "tags": ["Roles"],
+        "summary": "Create role",
+        "operationId": "createRole",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/StoreRoleRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/RoleCreatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/roles/{role}": {
+      "get": {
+        "tags": ["Roles"],
+        "summary": "Get role by ID",
+        "operationId": "getRole",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RoleIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/RoleSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/roles/{role}/update": {
+      "put": {
+        "tags": ["Roles"],
+        "summary": "Update role",
+        "operationId": "updateRole",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RoleIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/UpdateRoleRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/RoleUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/roles/{role}/delete": {
+      "delete": {
+        "tags": ["Roles"],
+        "summary": "Delete role",
+        "operationId": "deleteRole",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RoleIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DeletedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/roles/{role}/permissions": {
+      "post": {
+        "tags": ["Roles"],
+        "summary": "Assign permissions to role",
+        "operationId": "assignRolePermissions",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/RoleIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/AssignPermissionsRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/RoleUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/permissions": {
+      "get": {
+        "tags": ["Permissions"],
+        "summary": "List permissions",
+        "operationId": "listPermissions",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/PermissionListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/permissions/create": {
+      "post": {
+        "tags": ["Permissions"],
+        "summary": "Create permission",
+        "operationId": "createPermission",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/StorePermissionRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/PermissionCreatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/permissions/{permission}": {
+      "get": {
+        "tags": ["Permissions"],
+        "summary": "Get permission by ID",
+        "operationId": "getPermission",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/PermissionIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/PermissionSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/permissions/{permission}/update": {
+      "put": {
+        "tags": ["Permissions"],
+        "summary": "Update permission",
+        "operationId": "updatePermission",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/PermissionIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/UpdatePermissionRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/PermissionUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/permissions/{permission}/delete": {
+      "delete": {
+        "tags": ["Permissions"],
+        "summary": "Delete permission",
+        "operationId": "deletePermission",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/PermissionIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DeletedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/shifts": {
+      "get": {
+        "tags": ["Shifts"],
+        "summary": "List shifts",
+        "operationId": "listShifts",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "description": "Return only active shifts",
+            "schema": { "type": "boolean" },
+            "example": true
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/ShiftListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/shifts/create": {
+      "post": {
+        "tags": ["Shifts"],
+        "summary": "Create shift",
+        "operationId": "createShift",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/StoreShiftRequest" },
+        "responses": {
+          "201": { "$ref": "#/components/responses/ShiftCreatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/shifts/{shift}/update": {
+      "put": {
+        "tags": ["Shifts"],
+        "summary": "Update shift",
+        "operationId": "updateShift",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ShiftIdPath" }],
+        "requestBody": { "$ref": "#/components/requestBodies/UpdateShiftRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/ShiftUpdatedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/shifts/{shift}/delete": {
+      "delete": {
+        "tags": ["Shifts"],
+        "summary": "Delete shift",
+        "operationId": "deleteShift",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/ShiftIdPath" }],
+        "responses": {
+          "200": { "$ref": "#/components/responses/DeletedSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/schedules": {
+      "get": {
+        "tags": ["Schedule"],
+        "summary": "Get weekly schedule grid",
+        "description": "Returns the full weekly schedule for a department. One row per employee, 7 day columns.",
+        "operationId": "getSchedule",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DepartmentIdQuery" },
+          { "$ref": "#/components/parameters/WeekStartQuery" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/ScheduleGridSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/schedules/day": {
+      "get": {
+        "tags": ["Schedule"],
+        "summary": "Get schedule for a single day",
+        "description": "Returns assignments for all employees in a department on a specific date.",
+        "operationId": "getScheduleDay",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DepartmentIdQuery" },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "description": "The specific date to query (Y-m-d)",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-07"
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/ScheduleDaySuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/schedules/save": {
+      "post": {
+        "tags": ["Schedule"],
+        "summary": "Save (and optionally publish) a weekly schedule",
+        "description": "Full-week replace for a department. Pass publish=true to publish, false to save as draft.",
+        "operationId": "saveSchedule",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/SaveScheduleRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/ScheduleSaveSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/schedules/copy-last-week": {
+      "post": {
+        "tags": ["Schedule"],
+        "summary": "Copy previous week's schedule as draft",
+        "operationId": "copyLastWeekSchedule",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/CopyLastWeekRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/CopyLastWeekSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/schedules/export": {
+      "get": {
+        "tags": ["Schedule"],
+        "summary": "Export schedule as CSV",
+        "description": "Streams a CSV file of the weekly schedule for the specified department and week.",
+        "operationId": "exportSchedule",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/DepartmentIdQuery" },
+          { "$ref": "#/components/parameters/WeekStartQuery" }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV file download",
+            "content": {
+              "text/csv": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "Attachment filename",
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/schedules/template": {
+      "get": {
+        "tags": ["Schedule"],
+        "summary": "Download CSV import template",
+        "description": "Downloads a pre-formatted .csv template for the specified week. Fill in shift names, off, sick, or leave in each cell then upload via /schedules/import-excel.",
+        "operationId": "downloadScheduleTemplate",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "week_start",
+            "in": "query",
+            "required": false,
+            "description": "Monday date for the template week (Y-m-d). Defaults to the current week's Monday.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-14"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV template file download",
+            "content": {
+              "text/csv": {
+                "schema": { "type": "string", "format": "binary" }
+              }
+            },
+            "headers": {
+              "Content-Disposition": {
+                "description": "Attachment filename, e.g. schedule_template_2026-04-14.csv",
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/schedules/import-excel": {
+      "post": {
+        "tags": ["Schedule"],
+        "summary": "Import schedule from Excel/CSV file",
+        "description": "Imports a schedule from an .xlsx or .csv file and saves it as a draft.",
+        "operationId": "importScheduleExcel",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/ImportExcelRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/ImportExcelSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/fingerprint/imports": {
+      "get": {
+        "tags": ["Fingerprint"],
+        "summary": "List fingerprint imports",
+        "operationId": "listFingerprintImports",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/PerPageQuery" },
+          { "$ref": "#/components/parameters/PageQuery" },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by department ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 2
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/FingerprintImportListSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" }
+        }
+      }
+    },
+    "/fingerprint/imports/upload": {
+      "post": {
+        "tags": ["Fingerprint"],
+        "summary": "Upload fingerprint records file",
+        "description": "Uploads and processes a fingerprint data file for a department and week.",
+        "operationId": "uploadFingerprintImport",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "$ref": "#/components/requestBodies/FingerprintUploadRequest" },
+        "responses": {
+          "200": { "$ref": "#/components/responses/FingerprintUploadSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/audit": {
+      "get": {
+        "tags": ["Audit"],
+        "summary": "Get attendance audit grid",
+        "description": "Returns an attendance grid for a date range. One row per employee, one column per day. Supports week_start shorthand or explicit date_from/date_to range.",
+        "operationId": "getAudit",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "week_start",
+            "in": "query",
+            "required": false,
+            "description": "Start of the week (Y-m-d). When provided, automatically sets date range to 7 days. Takes priority over date_from/date_to.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-07"
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "description": "Start of custom date range (Y-m-d). Required if week_start is omitted.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-01"
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "description": "End of custom date range (Y-m-d). Defaults to date_from if omitted.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-30"
+          },
+          {
+            "name": "department_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter by department ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 2
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "description": "Filter to a single user",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 5
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "description": "Filter by attendance status. Accepts a single value or comma-separated list.",
+            "schema": {
+              "type": "string",
+              "example": "late,absent"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Search by employee name or nickname",
+            "schema": { "type": "string" },
+            "example": "John"
+          },
+          { "$ref": "#/components/parameters/PerPageQuery" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuditGridSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/audit/cell": {
+      "get": {
+        "tags": ["Audit"],
+        "summary": "Get attendance detail for a single employee-day cell",
+        "operationId": "getAuditCell",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "description": "Employee user ID",
+            "schema": { "type": "integer", "minimum": 1 },
+            "example": 5
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "description": "The date to query (Y-m-d)",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-04-09"
+          }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/AuditCellSuccess" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "parameters": {
+      "DepartmentIdPath": {
+        "name": "department",
+        "in": "path",
+        "required": true,
+        "description": "Department ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 3
+      },
+      "UserIdPath": {
+        "name": "user",
+        "in": "path",
+        "required": true,
+        "description": "User ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 7
+      },
+      "RoleIdPath": {
+        "name": "role",
+        "in": "path",
+        "required": true,
+        "description": "Role ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 2
+      },
+      "PermissionIdPath": {
+        "name": "permission",
+        "in": "path",
+        "required": true,
+        "description": "Permission ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 5
+      },
+      "ShiftIdPath": {
+        "name": "shift",
+        "in": "path",
+        "required": true,
+        "description": "Shift ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 1
+      },
+      "DepartmentIdQuery": {
+        "name": "department_id",
+        "in": "query",
+        "required": true,
+        "description": "Department ID",
+        "schema": { "type": "integer", "minimum": 1 },
+        "example": 2
+      },
+      "WeekStartQuery": {
+        "name": "week_start",
+        "in": "query",
+        "required": true,
+        "description": "Monday date that starts the week (Y-m-d)",
+        "schema": { "type": "string", "format": "date" },
+        "example": "2026-04-07"
+      },
+      "PerPageQuery": {
+        "name": "per_page",
+        "in": "query",
+        "required": false,
+        "description": "Pagination page size (1–200).",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 15 },
+        "example": 15
+      },
+      "PageQuery": {
+        "name": "page",
+        "in": "query",
+        "required": false,
+        "description": "Pagination page number.",
+        "schema": { "type": "integer", "minimum": 1, "default": 1 },
+        "example": 1
+      }
+    },
+    "requestBodies": {
+      "LoginRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/LoginRequest" }
+          }
+        }
+      },
+      "StoreDepartmentRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StoreDepartmentRequest" }
+          }
+        }
+      },
+      "UpdateDepartmentRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateDepartmentRequest" }
+          }
+        }
+      },
+      "StoreUserRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StoreUserRequest" }
+          }
+        }
+      },
+      "UpdateUserRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateUserRequest" }
+          }
+        }
+      },
+      "AssignRolesRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AssignRolesRequest" }
+          }
+        }
+      },
+      "StoreRoleRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StoreRoleRequest" }
+          }
+        }
+      },
+      "UpdateRoleRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateRoleRequest" }
+          }
+        }
+      },
+      "AssignPermissionsRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AssignPermissionsRequest" }
+          }
+        }
+      },
+      "StorePermissionRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StorePermissionRequest" }
+          }
+        }
+      },
+      "UpdatePermissionRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdatePermissionRequest" }
+          }
+        }
+      },
+      "StoreShiftRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/StoreShiftRequest" }
+          }
+        }
+      },
+      "UpdateShiftRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UpdateShiftRequest" }
+          }
+        }
+      },
+      "SaveScheduleRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/SaveScheduleRequest" }
+          }
+        }
+      },
+      "CopyLastWeekRequest": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/CopyLastWeekRequest" }
+          }
+        }
+      },
+      "ImportExcelRequest": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": { "$ref": "#/components/schemas/ImportExcelRequest" }
+          }
+        }
+      },
+      "FingerprintUploadRequest": {
+        "required": true,
+        "content": {
+          "multipart/form-data": {
+            "schema": { "$ref": "#/components/schemas/FingerprintUploadRequest" }
+          }
+        }
+      }
+    },
+    "responses": {
+      "AuthSuccess": {
+        "description": "Login successful",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AuthSuccessResponse" }
+          }
+        }
+      },
+      "LogoutSuccess": {
+        "description": "Logout successful",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/MessageResponse" },
+            "example": { "message": "Logged out successfully." }
+          }
+        }
+      },
+      "MeSuccess": {
+        "description": "Authenticated user retrieved",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UserDataResponse" }
+          }
+        }
+      },
+      "DepartmentListSuccess": {
+        "description": "Departments retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/DepartmentListResponse" }
+          }
+        }
+      },
+      "DepartmentTreeSuccess": {
+        "description": "Department tree retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/DepartmentListResponse" }
+          }
+        }
+      },
+      "DepartmentSuccess": {
+        "description": "Department retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/DepartmentDataResponse" }
+          }
+        }
+      },
+      "DepartmentCreatedSuccess": {
+        "description": "Department created successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/DepartmentDataResponse" }
+          }
+        }
+      },
+      "DepartmentUpdatedSuccess": {
+        "description": "Department updated successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/DepartmentDataResponse" }
+          }
+        }
+      },
+      "UserListSuccess": {
+        "description": "Users retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UserListResponse" }
+          }
+        }
+      },
+      "UserSuccess": {
+        "description": "User retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UserDataResponse" }
+          }
+        }
+      },
+      "UserCreatedSuccess": {
+        "description": "User created successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UserDataResponse" }
+          }
+        }
+      },
+      "UserUpdatedSuccess": {
+        "description": "User updated successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/UserDataResponse" }
+          }
+        }
+      },
+      "LevelListSuccess": {
+        "description": "Levels retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/LevelListResponse" }
+          }
+        }
+      },
+      "RoleListSuccess": {
+        "description": "Roles retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RoleListResponse" }
+          }
+        }
+      },
+      "RoleSuccess": {
+        "description": "Role retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RoleDataResponse" }
+          }
+        }
+      },
+      "RoleCreatedSuccess": {
+        "description": "Role created successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RoleDataResponse" }
+          }
+        }
+      },
+      "RoleUpdatedSuccess": {
+        "description": "Role updated successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/RoleDataResponse" }
+          }
+        }
+      },
+      "PermissionListSuccess": {
+        "description": "Permissions retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/PermissionListResponse" }
+          }
+        }
+      },
+      "PermissionSuccess": {
+        "description": "Permission retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/PermissionDataResponse" }
+          }
+        }
+      },
+      "PermissionCreatedSuccess": {
+        "description": "Permission created successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/PermissionDataResponse" }
+          }
+        }
+      },
+      "PermissionUpdatedSuccess": {
+        "description": "Permission updated successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/PermissionDataResponse" }
+          }
+        }
+      },
+      "ShiftListSuccess": {
+        "description": "Shifts retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ShiftListResponse" }
+          }
+        }
+      },
+      "ShiftCreatedSuccess": {
+        "description": "Shift created successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ShiftDataResponse" }
+          }
+        }
+      },
+      "ShiftUpdatedSuccess": {
+        "description": "Shift updated successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ShiftDataResponse" }
+          }
+        }
+      },
+      "ScheduleGridSuccess": {
+        "description": "Schedule grid retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ScheduleGridResponse" }
+          }
+        }
+      },
+      "ScheduleDaySuccess": {
+        "description": "Day schedule retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ScheduleDayResponse" }
+          }
+        }
+      },
+      "ScheduleSaveSuccess": {
+        "description": "Schedule saved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ScheduleSaveResponse" }
+          }
+        }
+      },
+      "CopyLastWeekSuccess": {
+        "description": "Previous week copied successfully",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Previous week copied successfully as draft." },
+                    "assignments_copied": { "type": "integer", "example": 35 },
+                    "week_start": { "type": "string", "format": "date", "example": "2026-04-14" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ImportExcelSuccess": {
+        "description": "Excel schedule imported as draft",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Schedule imported as draft. Review and publish when ready." },
+                "success_count": { "type": "integer", "example": 42 },
+                "failed_count": { "type": "integer", "example": 2 },
+                "failed_rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "row": { "type": "integer", "example": 5 },
+                      "reason": { "type": "string", "example": "User not found" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "FingerprintImportListSuccess": {
+        "description": "Fingerprint imports retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/FingerprintImportListResponse" }
+          }
+        }
+      },
+      "FingerprintUploadSuccess": {
+        "description": "Fingerprint file uploaded and processed",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/FingerprintImportDataResponse" }
+          }
+        }
+      },
+      "AuditGridSuccess": {
+        "description": "Audit grid retrieved successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AuditGridResponse" }
+          }
+        }
+      },
+      "AuditCellSuccess": {
+        "description": "Attendance cell detail retrieved",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/AuditCellResponse" }
+          }
+        }
+      },
+      "DeletedSuccess": {
+        "description": "Resource deleted successfully",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/MessageResponse" },
+            "example": { "message": "Deleted successfully." }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthenticated",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "Unauthenticated." }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden — insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "This action is unauthorized." }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "message": "No query results for model." }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ValidationErrorResponse" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Error message." }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Operation successful." }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "The given data was invalid." },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "example": {
+              "week_start": ["The week start field is required."]
+            }
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "current_page": { "type": "integer", "example": 1 },
+          "total": { "type": "integer", "example": 50 },
+          "per_page": { "type": "integer", "example": 15 },
+          "last_page": { "type": "integer", "example": 4 },
+          "from": { "type": "integer", "nullable": true, "example": 1 },
+          "to": { "type": "integer", "nullable": true, "example": 15 }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "admin@nvtsystem.com" },
+          "password": { "type": "string", "format": "password", "example": "Admin@1234" }
+        }
+      },
+      "UserSummary": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 7 },
+          "name": { "type": "string", "example": "John Doe" },
+          "nickname": { "type": "string", "nullable": true, "example": "Johnny" },
+          "ac_no": { "type": "string", "nullable": true, "example": "EMP-007" },
+          "email": { "type": "string", "format": "email", "example": "john@example.com" },
+          "department": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 2 },
+              "name": { "type": "string", "example": "Engineering" }
+            }
+          },
+          "level": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "code": { "type": "string", "example": "L1" },
+              "name": { "type": "string", "example": "Junior" }
+            }
+          },
+          "tier": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "tier_name": { "type": "string", "example": "Tier A" }
+            }
+          },
+          "roles": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["admin", "manager"]
+          },
+          "permissions": {
+            "type": "array",
+            "description": "All effective permissions (union of all assigned roles). Only present when roles are loaded.",
+            "items": { "type": "string" },
+            "example": ["view-users", "manage-schedule"]
+          }
+        }
+      },
+      "AuthSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": { "$ref": "#/components/schemas/UserSummary" },
+              "token": { "type": "string", "example": "1|laravel_sanctum_token_example" }
+            }
+          }
+        }
+      },
+      "UserDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/UserSummary" }
+        }
+      },
+      "UserStats": {
+        "type": "object",
+        "description": "Aggregate counts across all users (always global, unaffected by active filters)",
+        "properties": {
+          "total": { "type": "integer", "example": 42, "description": "Total number of users" },
+          "by_role": {
+            "type": "object",
+            "description": "Count of users per role name. 'no_role' is users with no role assigned.",
+            "additionalProperties": { "type": "integer" },
+            "example": { "admin": 1, "manager": 3, "compliance": 2, "no_role": 36 }
+          },
+          "by_department": {
+            "type": "array",
+            "description": "User counts per department, sorted by count descending. id=null means unassigned.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer", "nullable": true, "example": 2 },
+                "name": { "type": "string", "example": "Engineering" },
+                "count": { "type": "integer", "example": 15 }
+              }
+            }
+          }
+        }
+      },
+      "UserListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserSummary" }
+          },
+          "meta": { "$ref": "#/components/schemas/PaginationMeta" },
+          "summary": { "$ref": "#/components/schemas/UserStats" }
+        }
+      },
+      "StoreUserRequest": {
+        "type": "object",
+        "required": ["name", "email", "password"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Jane Smith" },
+          "nickname": { "type": "string", "nullable": true, "maxLength": 255, "example": "Janie" },
+          "ac_no": { "type": "string", "nullable": true, "maxLength": 50, "example": "EMP-088" },
+          "email": { "type": "string", "format": "email", "example": "jane@example.com" },
+          "password": { "type": "string", "minLength": 8, "example": "secret123" },
+          "department_id": { "type": "integer", "nullable": true, "example": 2 },
+          "user_level_id": { "type": "integer", "nullable": true, "example": 1 },
+          "user_level_tier_id": { "type": "integer", "nullable": true, "example": 1 },
+          "roles": {
+            "type": "array",
+            "nullable": true,
+            "description": "Optional list of role names to assign on creation.",
+            "items": { "type": "string" },
+            "example": ["manager"]
+          }
+        }
+      },
+      "UpdateUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Jane Smith Updated" },
+          "nickname": { "type": "string", "nullable": true, "example": "JS" },
+          "ac_no": { "type": "string", "nullable": true, "example": "EMP-088" },
+          "email": { "type": "string", "format": "email", "example": "jane_new@example.com" },
+          "password": { "type": "string", "minLength": 8, "nullable": true, "example": null },
+          "department_id": { "type": "integer", "nullable": true, "example": 3 },
+          "user_level_id": { "type": "integer", "nullable": true, "example": 2 },
+          "user_level_tier_id": { "type": "integer", "nullable": true, "example": 2 }
+        }
+      },
+      "AssignRolesRequest": {
+        "type": "object",
+        "required": ["roles"],
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["manager", "employee"]
+          }
+        }
+      },
+      "Department": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 3 },
+          "name": { "type": "string", "example": "Engineering" },
+          "description": { "type": "string", "nullable": true, "example": "Software engineering department" },
+          "parent_id": { "type": "integer", "nullable": true, "example": 1 },
+          "path": { "type": "string", "example": "1/3" },
+          "is_active": { "type": "boolean", "example": true },
+          "children": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Department" }
+          }
+        }
+      },
+      "DepartmentDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Department" }
+        }
+      },
+      "DepartmentListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Department" }
+          }
+        }
+      },
+      "StoreDepartmentRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Backend Team" },
+          "description": { "type": "string", "nullable": true, "example": "Handles backend services." },
+          "parent_id": { "type": "integer", "nullable": true, "example": 2 },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "UpdateDepartmentRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Backend Team Updated" },
+          "description": { "type": "string", "nullable": true, "example": "Updated description." },
+          "parent_id": { "type": "integer", "nullable": true, "example": 1 },
+          "is_active": { "type": "boolean", "example": false }
+        }
+      },
+      "UserLevelTier": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "tier_name": { "type": "string", "example": "Tier A" },
+          "tier_order": { "type": "integer", "example": 1 },
+          "description": { "type": "string", "nullable": true, "example": "Entry tier" }
+        }
+      },
+      "UserLevel": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "code": { "type": "string", "example": "L1" },
+          "name": { "type": "string", "example": "Junior" },
+          "hierarchy_rank": { "type": "integer", "example": 1 },
+          "description": { "type": "string", "nullable": true, "example": "Entry level employees" },
+          "tiers": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserLevelTier" }
+          }
+        }
+      },
+      "LevelListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/UserLevel" }
+          }
+        }
+      },
+      "PermissionItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 5 },
+          "name": { "type": "string", "example": "manage-users" },
+          "guard_name": { "type": "string", "example": "sanctum" }
+        }
+      },
+      "PermissionDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/PermissionItem" }
+        }
+      },
+      "PermissionListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PermissionItem" }
+          }
+        }
+      },
+      "StorePermissionRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "view-reports" }
+        }
+      },
+      "UpdatePermissionRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "view-reports-updated" }
+        }
+      },
+      "RoleItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "manager" },
+          "guard_name": { "type": "string", "example": "sanctum" },
+          "permissions": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PermissionItem" }
+          }
+        }
+      },
+      "RoleDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/RoleItem" }
+        }
+      },
+      "RoleListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/RoleItem" }
+          }
+        }
+      },
+      "StoreRoleRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "supervisor" },
+          "permissions": {
+            "type": "array",
+            "nullable": true,
+            "items": { "type": "string" },
+            "example": ["view-users", "manage-schedule"]
+          }
+        }
+      },
+      "UpdateRoleRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "senior-supervisor" },
+          "permissions": {
+            "type": "array",
+            "nullable": true,
+            "items": { "type": "string" },
+            "example": ["view-users"]
+          }
+        }
+      },
+      "AssignPermissionsRequest": {
+        "type": "object",
+        "required": ["permissions"],
+        "properties": {
+          "permissions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["manage-schedule", "view-audit"]
+          }
+        }
+      },
+      "Shift": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "name": { "type": "string", "example": "Morning" },
+          "start_time": { "type": "string", "example": "08:00:00" },
+          "end_time": { "type": "string", "example": "16:00:00" },
+          "is_overnight": { "type": "boolean", "example": false },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "ShiftDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/Shift" }
+        }
+      },
+      "ShiftListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Shift" }
+          }
+        }
+      },
+      "StoreShiftRequest": {
+        "type": "object",
+        "required": ["name", "start_time", "end_time"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Morning" },
+          "start_time": { "type": "string", "example": "08:00" },
+          "end_time": { "type": "string", "example": "16:00" },
+          "is_overnight": { "type": "boolean", "example": false },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "UpdateShiftRequest": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "maxLength": 255, "example": "Morning Updated" },
+          "start_time": { "type": "string", "example": "07:30" },
+          "end_time": { "type": "string", "example": "15:30" },
+          "is_overnight": { "type": "boolean", "example": false },
+          "is_active": { "type": "boolean", "example": true }
+        }
+      },
+      "AssignmentCell": {
+        "type": "object",
+        "description": "A single day cell in the schedule grid for one employee",
+        "properties": {
+          "date": { "type": "string", "format": "date", "example": "2026-04-07" },
+          "assignment_id": { "type": "integer", "nullable": true, "example": 42 },
+          "assignment_type": {
+            "type": "string",
+            "nullable": true,
+            "enum": ["shift", "day_off", "sick_day", "leave_request"],
+            "example": "shift"
+          },
+          "shift": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/Shift" }]
+          },
+          "is_cover": { "type": "boolean", "example": false },
+          "cover_for_user": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 5 },
+              "name": { "type": "string", "example": "Alice" }
+            }
+          },
+          "comment": { "type": "string", "nullable": true, "example": null },
+          "history_count": { "type": "integer", "example": 2 }
+        }
+      },
+      "ScheduleEmployee": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 7 },
+              "name": { "type": "string", "example": "John Doe" },
+              "ac_no": { "type": "string", "nullable": true, "example": "EMP-007" }
+            }
+          },
+          "days": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AssignmentCell" }
+          }
+        }
+      },
+      "ScheduleGridResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "schedule_id": { "type": "integer", "nullable": true, "example": 10 },
+              "department_id": { "type": "integer", "example": 2 },
+              "week_start": { "type": "string", "format": "date", "example": "2026-04-07" },
+              "status": {
+                "type": "string",
+                "enum": ["draft", "published"],
+                "nullable": true,
+                "example": "published"
+              },
+              "published_at": { "type": "string", "format": "date-time", "nullable": true },
+              "published_by": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "id": { "type": "integer", "example": 1 },
+                  "name": { "type": "string", "example": "Admin" }
+                }
+              },
+              "dates": {
+                "type": "array",
+                "items": { "type": "string", "format": "date" },
+                "example": ["2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13"]
+              },
+              "employees": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/ScheduleEmployee" }
+              }
+            }
+          }
+        }
+      },
+      "ScheduleDayResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string", "format": "date", "example": "2026-04-09" },
+              "week_start": { "type": "string", "format": "date", "example": "2026-04-07" },
+              "summary": {
+                "type": "object",
+                "description": "Count of employees per assignment type for the day",
+                "properties": {
+                  "shift": { "type": "integer", "example": 8 },
+                  "day_off": { "type": "integer", "example": 2 },
+                  "sick_day": { "type": "integer", "example": 1 },
+                  "leave_request": { "type": "integer", "example": 0 },
+                  "unassigned": { "type": "integer", "example": 1 }
+                }
+              },
+              "employees": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": { "type": "integer", "example": 7 },
+                    "name": { "type": "string", "example": "John Doe" },
+                    "nickname": { "type": "string", "nullable": true, "example": "Johnny" },
+                    "level": { "type": "string", "nullable": true, "example": "L1" },
+                    "date": { "type": "string", "format": "date", "example": "2026-04-09" },
+                    "assignment_id": { "type": "integer", "nullable": true, "example": 42 },
+                    "assignment_type": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": ["shift", "day_off", "sick_day", "leave_request"],
+                      "example": "shift"
+                    },
+                    "shift": { "nullable": true, "allOf": [{ "$ref": "#/components/schemas/Shift" }] },
+                    "is_cover": { "type": "boolean", "example": false },
+                    "cover_for_user": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": { "type": "integer", "example": 5 },
+                        "name": { "type": "string", "example": "Alice" }
+                      }
+                    },
+                    "comment": { "type": "string", "nullable": true, "example": null },
+                    "history_count": { "type": "integer", "example": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "AssignmentRow": {
+        "type": "object",
+        "description": "One assignment row inside the save request",
+        "required": ["user_id", "date", "type"],
+        "properties": {
+          "user_id": { "type": "integer", "minimum": 1, "example": 7 },
+          "date": { "type": "string", "format": "date", "example": "2026-04-07" },
+          "type": {
+            "type": "string",
+            "enum": ["shift", "day_off", "sick_day", "leave_request"],
+            "example": "shift"
+          },
+          "shift_id": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Required when type is 'shift'",
+            "example": 1
+          },
+          "is_cover": { "type": "boolean", "example": false },
+          "cover_for_user_id": { "type": "integer", "nullable": true, "example": null },
+          "cover_shift_id": { "type": "integer", "nullable": true, "example": null },
+          "comment": { "type": "string", "nullable": true, "example": null }
+        }
+      },
+      "SaveScheduleRequest": {
+        "type": "object",
+        "required": ["department_id", "week_start", "assignments"],
+        "properties": {
+          "department_id": { "type": "integer", "minimum": 1, "example": 2 },
+          "week_start": { "type": "string", "format": "date", "example": "2026-04-07" },
+          "publish": { "type": "boolean", "description": "Set true to publish the schedule", "example": false },
+          "assignments": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AssignmentRow" }
+          }
+        }
+      },
+      "ScheduleSaveResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "schedule": { "$ref": "#/components/schemas/WeeklySchedule" },
+              "errors": {
+                "type": "array",
+                "description": "Per-row errors that were skipped during save",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "row": { "type": "integer", "example": 3 },
+                    "reason": { "type": "string", "example": "shift_id required when type is shift" }
+                  }
+                }
+              },
+              "publish_error": {
+                "type": "object",
+                "nullable": true,
+                "description": "Present only when publish was requested but validation failed",
+                "properties": {
+                  "message": { "type": "string", "example": "Cannot publish: schedule is incomplete." },
+                  "missing_count": { "type": "integer", "example": 3 },
+                  "missing_cells": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": { "type": "integer", "example": 5 },
+                        "name": { "type": "string", "example": "Alice" },
+                        "missing_dates": {
+                          "type": "array",
+                          "items": { "type": "string", "format": "date" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "WeeklySchedule": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 10 },
+          "department_id": { "type": "integer", "example": 2 },
+          "week_start": { "type": "string", "format": "date", "example": "2026-04-07" },
+          "status": { "type": "string", "enum": ["draft", "published"], "example": "draft" },
+          "published_at": { "type": "string", "format": "date-time", "nullable": true },
+          "published_by": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "Admin" }
+            }
+          },
+          "department": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 2 },
+              "name": { "type": "string", "example": "Engineering" }
+            }
+          }
+        }
+      },
+      "CopyLastWeekRequest": {
+        "type": "object",
+        "required": ["department_id", "week_start"],
+        "properties": {
+          "department_id": { "type": "integer", "minimum": 1, "example": 2 },
+          "week_start": {
+            "type": "string",
+            "format": "date",
+            "description": "The target week to copy INTO (must be a Monday)",
+            "example": "2026-04-14"
+          }
+        }
+      },
+      "ImportExcelRequest": {
+        "type": "object",
+        "required": ["file", "department_id", "week_start"],
+        "properties": {
+          "file": { "type": "string", "format": "binary", "description": "Excel or CSV file (.xlsx, .csv)" },
+          "department_id": { "type": "integer", "minimum": 1, "example": 2 },
+          "week_start": { "type": "string", "format": "date", "example": "2026-04-07" }
+        }
+      },
+      "FingerprintImport": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 4 },
+          "department_id": { "type": "integer", "nullable": true, "example": 2 },
+          "week_start": { "type": "string", "format": "date", "nullable": true, "example": "2026-04-07" },
+          "filename": { "type": "string", "example": "fingerprint_2026-04-07.xlsx" },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "done", "failed"],
+            "example": "done"
+          },
+          "rows_imported": { "type": "integer", "example": 98 },
+          "rows_failed": { "type": "integer", "example": 2 },
+          "error_log": { "type": "string", "nullable": true, "example": null },
+          "imported_at": { "type": "string", "format": "date-time", "nullable": true, "example": "2026-04-08T09:00:00Z" },
+          "imported_by": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "Admin" }
+            }
+          }
+        }
+      },
+      "FingerprintImportDataResponse": {
+        "type": "object",
+        "properties": {
+          "data": { "$ref": "#/components/schemas/FingerprintImport" }
+        }
+      },
+      "FingerprintImportListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/FingerprintImport" }
+          },
+          "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+        }
+      },
+      "FingerprintUploadRequest": {
+        "type": "object",
+        "required": ["file", "department_id", "week_start"],
+        "properties": {
+          "file": { "type": "string", "format": "binary", "description": "Fingerprint data file" },
+          "department_id": { "type": "integer", "minimum": 1, "example": 2 },
+          "week_start": { "type": "string", "format": "date", "example": "2026-04-07" }
+        }
+      },
+      "AttendanceStatusValues": {
+        "type": "string",
+        "enum": ["on_time", "late", "left_early_std", "left_early_earl", "combined", "absent", "off"],
+        "example": "on_time"
+      },
+      "AuditDay": {
+        "type": "object",
+        "description": "Attendance data for one employee on one date",
+        "properties": {
+          "date": { "type": "string", "format": "date", "example": "2026-04-09" },
+          "status": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/AttendanceStatusValues" }]
+          },
+          "clock_in": { "type": "string", "nullable": true, "example": "08:05:00" },
+          "clock_out": { "type": "string", "nullable": true, "example": "16:01:00" },
+          "late_minutes": { "type": "integer", "nullable": true, "example": 0 },
+          "early_minutes": { "type": "integer", "nullable": true, "example": 0 },
+          "shift": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "Morning" },
+              "start_time": { "type": "string", "example": "08:00:00" },
+              "end_time": { "type": "string", "example": "16:00:00" }
+            }
+          }
+        }
+      },
+      "AuditEmployee": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 7 },
+              "name": { "type": "string", "example": "John Doe" },
+              "ac_no": { "type": "string", "nullable": true, "example": "EMP-007" }
+            }
+          },
+          "level": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "code": { "type": "string", "example": "L1" },
+              "name": { "type": "string", "example": "Junior" }
+            }
+          },
+          "tier": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "Tier A" }
+            }
+          },
+          "days": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/AuditDay" }
+          }
+        }
+      },
+      "AuditSummary": {
+        "type": "object",
+        "properties": {
+          "on_time": { "type": "integer", "example": 120 },
+          "late": { "type": "integer", "example": 8 },
+          "left_early_std": { "type": "integer", "example": 3 },
+          "left_early_earl": { "type": "integer", "example": 1 },
+          "combined": { "type": "integer", "example": 2 },
+          "absent": { "type": "integer", "example": 5 },
+          "off": { "type": "integer", "example": 35 }
+        }
+      },
+      "AuditGridResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "date_from": { "type": "string", "format": "date", "example": "2026-04-07" },
+              "date_to": { "type": "string", "format": "date", "example": "2026-04-13" },
+              "summary": { "$ref": "#/components/schemas/AuditSummary" },
+              "employees": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/AuditEmployee" }
+              }
+            }
+          }
+        }
+      },
+      "AuditCellDetail": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "integer", "example": 7 },
+          "name": { "type": "string", "example": "John Doe" },
+          "attendance_date": { "type": "string", "format": "date", "example": "2026-04-09" },
+          "status": { "$ref": "#/components/schemas/AttendanceStatusValues" },
+          "clock_in": { "type": "string", "nullable": true, "example": "08:05:00" },
+          "clock_out": { "type": "string", "nullable": true, "example": "16:01:00" },
+          "late_minutes": { "type": "integer", "nullable": true, "example": 0 },
+          "early_minutes": { "type": "integer", "nullable": true, "example": 0 },
+          "shift": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 1 },
+              "name": { "type": "string", "example": "Morning" },
+              "start_time": { "type": "string", "example": "08:00:00" },
+              "end_time": { "type": "string", "example": "16:00:00" }
+            }
+          },
+          "fingerprint_record": {
+            "nullable": true,
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 55 },
+              "record_date": { "type": "string", "format": "date", "example": "2026-04-09" },
+              "clock_in": { "type": "string", "nullable": true, "example": "08:05:00" },
+              "clock_out": { "type": "string", "nullable": true, "example": "16:01:00" }
+            }
+          }
+        }
+      },
+      "AuditCellResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "nullable": true,
+            "allOf": [{ "$ref": "#/components/schemas/AuditCellDetail" }]
+          }
+        }
+      }
+    }
+  }
+}

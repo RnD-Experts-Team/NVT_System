@@ -17,6 +17,7 @@ class DepartmentResource extends JsonResource
             'path'        => $this->path,
             'is_active'   => $this->is_active,
             'children'    => DepartmentResource::collection($this->whenLoaded('children')),
+            'users'       => UserResource::collection($this->whenLoaded('users')),
         ];
     }
 }

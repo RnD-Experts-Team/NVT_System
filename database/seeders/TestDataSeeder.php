@@ -7,8 +7,6 @@ use App\Models\User;
 use App\Models\UserLevel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class TestDataSeeder extends Seeder
 {
@@ -16,13 +14,7 @@ class TestDataSeeder extends Seeder
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // ─── 1. Ensure Compliance role exists ───────────────────────────────
-        $allRoles = ['L1', 'L2', 'L2PM', 'L3', 'L4', 'L5', 'L6', 'Compliance'];
-        foreach ($allRoles as $r) {
-            Role::firstOrCreate(['name' => $r, 'guard_name' => 'web']);
-        }
-
-        // ─── 2. Departments ─────────────────────────────────────────────────
+        // ─── 1. Departments ─────────────────────────────────────────────────
         $root = Department::firstOrCreate(
             ['name' => 'Head Office'],
             ['description' => 'Root department', 'parent_id' => null, 'is_active' => true]
@@ -50,13 +42,13 @@ class TestDataSeeder extends Seeder
             $operations->save();
         }
 
-        // ─── 3. Levels ───────────────────────────────────────────────────────
-        $l1  = UserLevel::where('code', 'L1')->first();
-        $l2  = UserLevel::where('code', 'L2')->first();
-        $l3  = UserLevel::where('code', 'L3')->first();
-        $l6  = UserLevel::where('code', 'L6')->first();
+        // ─── 2. Levels ───────────────────────────────────────────────────────
+        $l1 = UserLevel::where('code', 'L1')->first();
+        $l2 = UserLevel::where('code', 'L2')->first();
+        $l3 = UserLevel::where('code', 'L3')->first();
+        $l6 = UserLevel::where('code', 'L6')->first();
 
-        // ─── 4. Manager (L2) — Engineering ──────────────────────────────────
+        // ─── 3. Manager (L2) — Engineering ──────────────────────────────────
         $manager = User::firstOrCreate(
             ['email' => 'manager@nvtsystem.com'],
             [
@@ -66,12 +58,11 @@ class TestDataSeeder extends Seeder
                 'password'      => Hash::make('Manager@1234'),
                 'department_id' => $engineering->id,
                 'user_level_id' => $l2->id,
-                'is_admin'      => false,
             ]
         );
-        $manager->syncRoles(['L2']);
+        $manager->syncRoles(['manager']);
 
-        // ─── 5. Senior Manager (L3) — Operations ────────────────────────────
+        // ─── 4. Senior Manager (L3) — Operations ────────────────────────────
         $seniorManager = User::firstOrCreate(
             ['email' => 'senior.manager@nvtsystem.com'],
             [
@@ -81,12 +72,11 @@ class TestDataSeeder extends Seeder
                 'password'      => Hash::make('Senior@1234'),
                 'department_id' => $operations->id,
                 'user_level_id' => $l3->id,
-                'is_admin'      => false,
             ]
         );
-        $seniorManager->syncRoles(['L3']);
+        $seniorManager->syncRoles(['manager']);
 
-        // ─── 6. Compliance Officer ───────────────────────────────────────────
+        // ─── 5. Compliance Officer ───────────────────────────────────────────
         $compliance = User::firstOrCreate(
             ['email' => 'compliance@nvtsystem.com'],
             [
@@ -96,12 +86,11 @@ class TestDataSeeder extends Seeder
                 'password'      => Hash::make('Comply@1234'),
                 'department_id' => $root->id,
                 'user_level_id' => $l6->id,
-                'is_admin'      => false,
             ]
         );
-        $compliance->syncRoles(['Compliance']);
+        $compliance->syncRoles(['compliance']);
 
-        // ─── 7. Regular Employees (L1) — Engineering for schedule testing ───
+        // ─── 6. Regular Employees (L1) — Engineering for schedule testing ───
         $employees = [
             ['name' => 'Employee One',   'email' => 'emp1@nvtsystem.com', 'ac_no' => '1001'],
             ['name' => 'Employee Two',   'email' => 'emp2@nvtsystem.com', 'ac_no' => '1002'],
@@ -119,21 +108,21 @@ class TestDataSeeder extends Seeder
                     'password'      => Hash::make('Employee@1234'),
                     'department_id' => $engineering->id,
                     'user_level_id' => $l1->id,
-                    'is_admin'      => false,
                 ]
             );
-            $emp->syncRoles(['L1']);
+            // Employees have no special role — permissions come from being a user in the system
+            $emp->syncRoles([]);
         }
 
         $this->command->info('✔ TestDataSeeder complete.');
         $this->command->table(
             ['Role', 'Email', 'Password'],
             [
-                ['Admin (is_admin)',    'admin@nvtsystem.com',          'Admin@1234'],
-                ['Manager (L2)',        'manager@nvtsystem.com',        'Manager@1234'],
-                ['Senior Manager (L3)','senior.manager@nvtsystem.com', 'Senior@1234'],
-                ['Compliance',          'compliance@nvtsystem.com',     'Comply@1234'],
-                ['Employee (L1) x5',   'emp1–5@nvtsystem.com',         'Employee@1234'],
+                ['Admin',      'admin@nvtsystem.com',          'Admin@1234'],
+                ['Manager',    'manager@nvtsystem.com',        'Manager@1234'],
+                ['Manager',    'senior.manager@nvtsystem.com', 'Senior@1234'],
+                ['Compliance', 'compliance@nvtsystem.com',     'Comply@1234'],
+                ['(no role)',  'emp1-5@nvtsystem.com',         'Employee@1234'],
             ]
         );
     }
