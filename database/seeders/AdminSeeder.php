@@ -38,11 +38,10 @@ class AdminSeeder extends Seeder
                 'password'      => Hash::make('Admin@1234'),
                 'department_id' => $rootDept->id,
                 'user_level_id' => $l6Level->id,
-                'is_admin'      => true,
             ]
         );
 
-        // Assign matching Spatie role
-        $admin->syncRoles(['L6']);
+        // Assign admin role (sanctum guard, created by RolesAndPermissionsSeeder)
+        $admin->syncRoles(['admin']);
     }
 }

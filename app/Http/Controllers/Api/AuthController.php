@@ -24,7 +24,7 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
-        $user->load(['department', 'level', 'tier', 'roles']);
+        $user->load(['department', 'level', 'tier', 'roles', 'permissions']);
 
         $token = $user->createToken('api-token')->plainTextToken;
 
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        $user = $request->user()->load(['department', 'level', 'tier', 'roles']);
+        $user = $request->user()->load(['department', 'level', 'tier', 'roles', 'permissions']);
 
         return new UserResource($user);
     }

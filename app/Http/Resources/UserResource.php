@@ -15,7 +15,6 @@ class UserResource extends JsonResource
             'nickname'   => $this->nickname,
             'ac_no'      => $this->ac_no,
             'email'      => $this->email,
-            'is_admin'   => $this->is_admin,
             'department' => $this->whenLoaded('department', fn () => [
                 'id'   => $this->department->id,
                 'name' => $this->department->name,
@@ -29,7 +28,11 @@ class UserResource extends JsonResource
                 'id'        => $this->tier->id,
                 'tier_name' => $this->tier->tier_name,
             ] : null),
-            'roles'      => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')),
+            'roles'       => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')),
+            'permissions' => $this->when(
+                $this->relationLoaded('roles'),
+                fn () => $this->getAllPermissions()->pluck('name')->values()
+            ),
         ];
     }
 }
